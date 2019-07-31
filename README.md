@@ -1,4 +1,4 @@
 # flutter_provider
 
-A new Flutter application built with provider architecture
+A simple Flutter application built with provider architecture
 
