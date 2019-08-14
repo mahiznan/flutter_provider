@@ -48,5 +48,5 @@ class _HomePageState extends State<HomePage> {
 }
 
 class DataModel {
-  ValueNotifier<int> counter = ValueNotifier(0);
+  ValueNotifier<int> counter = ValueNotifier(10);
 }

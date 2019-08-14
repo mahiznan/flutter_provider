@@ -6,36 +6,41 @@ import 'package:provider/provider.dart';
 import 'package:random_color/random_color.dart';
 
 void main() => runApp(MyApp());
+//void main() => runApp(SimpleProvider());
+//void main() => runApp(ProviderExampleApp());
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        theme: ThemeData.dark(),
-        home: MultiProvider(providers: [
-          ChangeNotifierProvider<MyModel>(builder: (context) => MyModel())
-        ], child: HomePage()));
+      theme: ThemeData.dark(),
+      home: MultiProvider(
+        providers: [
+          ChangeNotifierProvider<MyModel>(builder: (context) => MyModel()),
+          ChangeNotifierProvider.value(value: null)
+        ],
+        child: HomePage(),
+      ),
+    );
   }
 }
 
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Consumer<MyModel>(builder: (context, value, child) {
-      return SafeArea(
-        child: Scaffold(
-          body: Padding(
-            padding: const EdgeInsets.only(top: 20),
-            child: Container(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[ListItemWidget(), DetailedItemWidget()],
-              ),
+    return SafeArea(
+      child: Scaffold(
+        body: Padding(
+          padding: const EdgeInsets.only(top: 20),
+          child: Container(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[ListItemWidget(), DetailedItemWidget()],
             ),
           ),
         ),
-      );
-    });
+      ),
+    );
   }
 }
 
@@ -51,6 +56,7 @@ class ListItemWidget extends StatelessWidget {
               itemCount: model.items.length,
               itemBuilder: (context, index) {
                 return Padding(
+                  key: Key('${model.items[index]}'),
                   padding: const EdgeInsets.only(left: 8, right: 8),
                   child: GestureDetector(
                     onTap: () {
@@ -125,6 +131,7 @@ class MyModel with ChangeNotifier {
     intializeItems();
   }
 
+  //Cust
   List<Item> _items = [];
   int _selectedIndex = 0;
 
@@ -133,6 +140,8 @@ class MyModel with ChangeNotifier {
   int get selectedIndex => _selectedIndex;
 
   void intializeItems() {
+    print('intializeItems');
+
     for (var i = 0; i < 10; i++) {
       _items.add(
         Item(
@@ -142,6 +151,7 @@ class MyModel with ChangeNotifier {
               colorBrightness: ColorBrightness.light,
               colorHue: ColorHue.random,
               colorSaturation: ColorSaturation.mediumSaturation),
+          i,
         ),
       );
     }
@@ -158,8 +168,9 @@ class Item with ChangeNotifier {
   int _no;
   Color _color;
   String _name;
+  int identifier;
 
-  Item(this._no, this._name, this._color);
+  Item(this._no, this._name, this._color, this.identifier);
 
   int get no => _no;
 

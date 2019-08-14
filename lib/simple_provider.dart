@@ -70,6 +70,7 @@ class MyHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('Hi Outside');
     return Scaffold(
       appBar: AppBar(title: const Title()),
       body: const Center(
