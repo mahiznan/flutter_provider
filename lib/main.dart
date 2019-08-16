@@ -6,22 +6,15 @@ import 'package:provider/provider.dart';
 import 'package:random_color/random_color.dart';
 
 void main() => runApp(MyApp());
-//void main() => runApp(SimpleProvider());
-//void main() => runApp(ProviderExampleApp());
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData.dark(),
-      home: MultiProvider(
-        providers: [
-          ChangeNotifierProvider<MyModel>(builder: (context) => MyModel()),
-          ChangeNotifierProvider.value(value: null)
-        ],
-        child: HomePage(),
-      ),
-    );
+        theme: ThemeData.dark(),
+        home: MultiProvider(providers: [
+          ChangeNotifierProvider<MyModel>(builder: (context) => MyModel())
+        ], child: HomePage()));
   }
 }
 
@@ -47,7 +40,7 @@ class HomePage extends StatelessWidget {
 class ListItemWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final model = Provider.of<MyModel>(context);
+    final model = Provider.of<MyModel>(context, listen: false);
     return Container(
       height: 100.0,
       child: Center(
@@ -55,31 +48,47 @@ class ListItemWidget extends StatelessWidget {
               scrollDirection: Axis.horizontal,
               itemCount: model.items.length,
               itemBuilder: (context, index) {
+                print('ListItemWidget: build index $index');
                 return Padding(
-                  key: Key('${model.items[index]}'),
                   padding: const EdgeInsets.only(left: 8, right: 8),
                   child: GestureDetector(
                     onTap: () {
                       model.tap(index);
                     },
-                    child: Container(
-                      decoration: BoxDecoration(
-                          color: RandomColor().randomColor(
-                              colorBrightness: ColorBrightness.light,
-                              colorHue: ColorHue.random,
-                              colorSaturation:
-                                  ColorSaturation.mediumSaturation),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: Colors.white, width: 3)),
-                      width: 100,
-                      child: Center(
-                        child: Text(
-                          '${model.items[index].no}',
-                          style: TextStyle(
-                              fontSize: 50,
-                              color: Color(0XFF414345),
-                              fontWeight: FontWeight.w900),
-                        ),
+                    child: ChangeNotifierProvider.value(
+                      value: model.items[index],
+                      // choices for this child are:
+                      // 1. break it out into a separate Widget, or
+                      // 2. Use a Builder
+                      //    Both the above approaches create a new context, beneath the current context, which ensures that Provider.of
+                      //     can find the ChangeNotifierProvider.value in the widget-tree above.
+                      // Option 2 is used here
+                      child: Builder(
+                        builder: (context) {
+                          final item = Provider.of<Item>(context);
+                          print('index $index, item no ${item.no}');
+                          return Container(
+                            decoration: BoxDecoration(
+                                color: RandomColor().randomColor(
+                                    colorBrightness: ColorBrightness.light,
+                                    colorHue: ColorHue.random,
+                                    colorSaturation:
+                                        ColorSaturation.mediumSaturation),
+                                borderRadius: BorderRadius.circular(10),
+                                border:
+                                    Border.all(color: Colors.white, width: 3)),
+                            width: 100,
+                            child: Center(
+                              child: Text(
+                                '${item.no}',
+                                style: TextStyle(
+                                    fontSize: 50,
+                                    color: Color(0XFF414345),
+                                    fontWeight: FontWeight.w900),
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     ),
                   ),
@@ -131,7 +140,6 @@ class MyModel with ChangeNotifier {
     intializeItems();
   }
 
-  //Cust
   List<Item> _items = [];
   int _selectedIndex = 0;
 
@@ -140,8 +148,6 @@ class MyModel with ChangeNotifier {
   int get selectedIndex => _selectedIndex;
 
   void intializeItems() {
-    print('intializeItems');
-
     for (var i = 0; i < 10; i++) {
       _items.add(
         Item(
@@ -151,7 +157,6 @@ class MyModel with ChangeNotifier {
               colorBrightness: ColorBrightness.light,
               colorHue: ColorHue.random,
               colorSaturation: ColorSaturation.mediumSaturation),
-          i,
         ),
       );
     }
@@ -168,9 +173,8 @@ class Item with ChangeNotifier {
   int _no;
   Color _color;
   String _name;
-  int identifier;
 
-  Item(this._no, this._name, this._color, this.identifier);
+  Item(this._no, this._name, this._color);
 
   int get no => _no;
 
@@ -184,5 +188,6 @@ class Item with ChangeNotifier {
 
   void tap() {
     _no++;
+    notifyListeners();
   }
 }
