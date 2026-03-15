@@ -2,6 +2,3 @@
 
 A simple Flutter application built with provider architecture
 
-
-
-
